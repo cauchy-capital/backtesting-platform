@@ -2,7 +2,7 @@
 
 A C++ backtesting platform created for Cauchy Capital
 
-### Code Style
+## Code Style
 Google's code style: https://google.github.io/styleguide/cppguide.html
 
 
