@@ -6,5 +6,5 @@ add_executable(CauchyBacktester)
 
 target_sources(CauchyBacktester
   PRIVATE
-    src/CsvReader.cpp
+    src/main.cpp
 )
