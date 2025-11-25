@@ -5,7 +5,7 @@ A C++ backtesting platform created for Cauchy Capital
 ## How To Build
 navigate to the root of the project and run: 
 
-`cmake -B build;` </br>
+`cmake -B build` </br>
 `cmake --build build`
 
 The executable should now be available in the /build/ directory.
