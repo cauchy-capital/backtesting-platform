@@ -1,0 +1,8 @@
+//
+// Created by Yuvraj Singh on 30/11/2025.
+//
+
+#ifndef CAUCHYBACKTESTER_DECISION_H
+#define CAUCHYBACKTESTER_DECISION_H
+
+#endif  // CAUCHYBACKTESTER_DECISION_H
