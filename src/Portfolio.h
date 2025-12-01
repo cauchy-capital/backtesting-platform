@@ -5,20 +5,20 @@
 #ifndef CAUCHYBACKTESTER_PORTFOLIO_H
 #define CAUCHYBACKTESTER_PORTFOLIO_H
 
-#include <list>
+#include <vector>
 
 #include "Decision.h"
 
 class Portfolio {
  public:
-  Portfolio();
+  Portfolio() = default;
 
-  void record(std::list<Decision>& decisions);
+  void record(const std::vector<Decision>& decisions);
 
-  int calculate();
+  double calculate() const;
 
  private:
-  int cash;
+  double cash = 0.0;  // modern default member initializer
 };
 
 #endif  // CAUCHYBACKTESTER_PORTFOLIO_H
