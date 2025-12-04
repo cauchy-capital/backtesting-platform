@@ -8,6 +8,7 @@ add_executable(CauchyBacktester
         src/Backtester.cpp
         src/Portfolio.cpp
         src/IO/CsvDataFeed.cpp
+        src/Strategy/BuyEverythingStrategy.cpp
 )
 
 
