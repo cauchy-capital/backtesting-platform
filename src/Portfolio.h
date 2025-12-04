@@ -1,9 +1,4 @@
-//
-// Created by Yuvraj Singh on 30/11/2025.
-//
-
-#ifndef CAUCHYBACKTESTER_PORTFOLIO_H
-#define CAUCHYBACKTESTER_PORTFOLIO_H
+#pragma once
 
 #include <vector>
 
@@ -21,4 +16,3 @@ class Portfolio {
   double cash = 0.0;  // modern default member initializer
 };
 
-#endif  // CAUCHYBACKTESTER_PORTFOLIO_H

@@ -3,15 +3,13 @@ cmake_minimum_required(VERSION 3.22.1)
 project(CauchyBacktester)
 
 add_executable(CauchyBacktester
+        src/main.cpp
         src/Portfolio.cpp
-        src/Portfolio.h
-        src/Decision.h)
-
-target_sources(CauchyBacktester
-  PRIVATE
-    src/main.cpp
-    src/csv_reader.cpp
+        src/Backtester.cpp
+        src/Portfolio.cpp
+        src/IO/CsvDataFeed.cpp
 )
+
 
 target_include_directories(CauchyBacktester
   PRIVATE

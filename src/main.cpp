@@ -1,7 +1,8 @@
 #include <iostream>
 #include <vector>
 
-#include "csv_reader.h"
+#include "Bar.h"
+#include "IO/CsvDataFeed.h"
 
 int main(int argc, char *argv[]) {
   if (argc > 2) {
@@ -9,9 +10,15 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  std::vector<Line> parsed;
+  std::string filename = argv[1];
 
-  bool success = ReadCsv(argv[1], &parsed);
+  // read data
+  CsvDataFeed data_feed(filename);
+  std::vector<Quote> quotes = data_feed.loadData();
 
-  return success;
+  // TODO: use quotes for backtester
+
+  // TODO: print total profit/loss!
+
+  return 0;
 }

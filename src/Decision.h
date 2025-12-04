@@ -1,9 +1,4 @@
-//
-// Created by Yuvraj Singh on 30/11/2025.
-//
-
-#ifndef CAUCHYBACKTESTER_DECISION_H
-#define CAUCHYBACKTESTER_DECISION_H
+#pragma once
 
 #include <string>
 
@@ -12,4 +7,3 @@ struct Decision {
   std::string ticker;  // e.g. "AAPL"
 };
 
-#endif  // CAUCHYBACKTESTER_DECISION_H

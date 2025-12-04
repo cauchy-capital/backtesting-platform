@@ -1,21 +1,26 @@
-#include "csv_reader.h"
-
+#include "CsvDataFeed.h"
 #include <fstream>
 #include <iostream>
 
-bool ReadCsv(const std::string& file_name, std::vector<Line>* result) { 
-  std::ifstream file(file_name);
+
+CsvDataFeed::CsvDataFeed(std::string filepath) 
+  : filepath_(filepath) {}
+
+std::vector<Quote> CsvDataFeed::loadData() {
+  std::vector<Quote> bars;
+
+  std::ifstream file(filepath_);
 
   if (!file.is_open()) {
     std::cerr << "Error: file failed to open!" << std::endl;
-    return false;
+    return bars;
   }
 
   std::string line;
   while(getline(file, line)) {
     std::cout << line << std::endl;
 
-    //TODO: parse line into Line, add to result vector.
+    //TODO: parse line into quotes
   }
 
   if (file.eof()) {
@@ -26,5 +31,6 @@ bool ReadCsv(const std::string& file_name, std::vector<Line>* result) {
   }
 
   file.close();
-  return true;
+
+  return bars;
 }
