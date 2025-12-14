@@ -13,5 +13,5 @@ public:
 
 private:
   std::string ticker_to_buy_;
-  std::map<std::string, int> bought_tickers_;
+  std::map<std::string, std::pair<int, double>> bought_tickers_;
 };

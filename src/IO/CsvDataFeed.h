@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
+
 #include "IDataFeed.h"
 #include "../Bar.h"
 
@@ -13,4 +15,9 @@ public:
 
 private:
   std::string filepath_;
+  std::string ticker_name_ = "0005.HKHKD";
+
+  std::vector<std::string> splitTab(const std::string& line);
+
+  std::time_t parseTimeStamp(const std::string& s);
 };

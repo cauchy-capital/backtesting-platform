@@ -1,18 +1,21 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 
 #include "Decision.h"
 
 class Portfolio {
  public:
-  Portfolio() = default;
+  Portfolio(double cash);
 
-  void record(const std::vector<Decision>& decisions);
+  void record(const Decision& decision);
 
-  double calculate() const;
+  double calculate_pnl() const;
 
  private:
-  double cash = 0.0;  // modern default member initializer
+  std::unordered_map<std::string, std::pair<int, double>> holdings_;
+  std::vector<Decision> history_;
+  double cash_;  
 };
 
