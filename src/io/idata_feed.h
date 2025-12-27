@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "../market/quote.h"
 #include "../market/bar.h"
 
 // interface for data feeds. should produce quotes. 
