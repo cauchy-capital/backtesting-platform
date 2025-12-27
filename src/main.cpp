@@ -1,7 +1,5 @@
 #include <iostream>
-#include <vector>
 
-#include "market/bar.h"
 #include "io/csv_data_feed.h"
 #include "backtest/backtester.h"
 #include "strategy/buy_everything_strategy.h"
