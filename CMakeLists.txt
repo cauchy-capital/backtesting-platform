@@ -4,9 +4,8 @@ project(CauchyBacktester)
 
 add_executable(CauchyBacktester
         src/main.cpp
-        src/portfolio.cpp
-        src/backtester.cpp
-        src/portfolio.cpp
+        src/portfolio/portfolio.cpp
+        src/backtest/backtester.cpp
         src/io/csv_data_feed.cpp
         src/strategy/buy_everything_strategy.cpp
 )

@@ -3,7 +3,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include "decision.h"
+#include "../market/decision.h"
 
 struct Position {
   double quantity;

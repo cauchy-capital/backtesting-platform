@@ -5,7 +5,6 @@
 #include <sstream>
 
 #include "idata_feed.h"
-#include "../bar.h"
 
 class CsvDataFeed : public IDataFeed {
 public:

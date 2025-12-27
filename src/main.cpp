@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 
-#include "bar.h"
+#include "market/bar.h"
 #include "io/csv_data_feed.h"
-#include "backtester.h"
+#include "backtest/backtester.h"
 #include "strategy/buy_everything_strategy.h"
 
 int main(int argc, char *argv[]) {

@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include "portfolio.h"
-#include "io/idata_feed.h"
-#include "strategy/istrategy.h"
-#include "decision.h"
+#include "../portfolio/portfolio.h"
+#include "../io/idata_feed.h"
+#include "../strategy/istrategy.h"
+#include "../market/decision.h"
 
 class Backtester {
   public:
