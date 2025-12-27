@@ -1,10 +1,10 @@
 #include <iostream>
 #include <vector>
 
-#include "Bar.h"
-#include "IO/CsvDataFeed.h"
-#include "Backtester.h"
-#include "Strategy/BuyEverythingStrategy.h"
+#include "bar.h"
+#include "io/csv_data_feed.h"
+#include "backtester.h"
+#include "strategy/buy_everything_strategy.h"
 
 int main(int argc, char *argv[]) {
   if (argc > 2) {

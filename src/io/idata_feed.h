@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "../Bar.h"
+#include "../bar.h"
 
 // interface for data feeds. should produce quotes. 
 class IDataFeed {

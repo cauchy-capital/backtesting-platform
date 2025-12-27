@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Backtester.h"
+#include "backtester.h"
 
 
 Backtester::Backtester(double cash) : portfolio_(cash) {}

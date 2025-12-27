@@ -4,8 +4,8 @@
 #include <string>
 #include <sstream>
 
-#include "IDataFeed.h"
-#include "../Bar.h"
+#include "idata_feed.h"
+#include "../bar.h"
 
 class CsvDataFeed : public IDataFeed {
 public:

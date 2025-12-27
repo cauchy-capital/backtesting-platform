@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "IStrategy.h"
+#include "istrategy.h"
 
 
 class BuyEverythingStrategy : public IStrategy {

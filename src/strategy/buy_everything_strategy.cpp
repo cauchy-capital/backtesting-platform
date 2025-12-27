@@ -1,4 +1,4 @@
-#include "BuyEverythingStrategy.h"
+#include "buy_everything_strategy.h"
 
 
 BuyEverythingStrategy::BuyEverythingStrategy(std::string ticker_to_buy)

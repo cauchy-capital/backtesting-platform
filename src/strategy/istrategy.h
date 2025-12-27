@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Decision.h"
-#include "../Bar.h"
+#include "../decision.h"
+#include "../bar.h"
 
 // Interface for strategy. traders should implement onBar()
 class IStrategy {

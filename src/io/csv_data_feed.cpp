@@ -4,7 +4,7 @@
 #include <sstream>
 #include <ctime>
 
-#include "CsvDataFeed.h"
+#include "csv_data_feed.h"
 
 CsvDataFeed::CsvDataFeed(std::string filepath) 
   : filepath_(filepath) {}
