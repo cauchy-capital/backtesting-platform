@@ -9,37 +9,49 @@ void Portfolio::record(const Decision& decision) {
     //dont do anything
     return;
   }
+  std::cout << "DECISION: " << decision.quantity << "@" << decision.price << std::endl;
 
+  auto& pos = positions_[decision.ticker];
+  double notional = decision.quantity * decision.price;
 
-  std::string ticker = decision.ticker;
-  double units = decision.quantity;
-  double transact_amount = units * decision.price;
+  if (decision.quantity < 0) {
+    //SELL
+    //calculate pnl
+    double sell_qty = -decision.quantity;
 
-  std::cout << "recording decision:\n" << "buy:" << ticker  << ", " << units << "@" << decision.price << std::endl;
+    double avg_before = pos.cost_basis / pos.quantity;
+    double pnl = (decision.price - avg_before) * sell_qty;
 
-  //update cash
-  cash_ -= transact_amount;
-  std::cout << "cash: " << cash_ << std::endl;
-  
-  //update portfolio holding
-  std::pair<int, double> old_ticker_stash = holdings_[ticker];
-  int ticker_held = old_ticker_stash.first;
-  double val = old_ticker_stash.second;
+    realized_pnl_ += pnl;
+  }
 
-  std::pair<int, double> new_ticker_stash = {ticker_held + units, val + transact_amount};
-  holdings_[ticker] = new_ticker_stash;
+  //update holdings
+  cash_ -= notional;
+  pos.quantity += decision.quantity;
+  pos.cost_basis += notional;
 
-  //add decision to history
   history_.push_back(decision);
 }
 
-double Portfolio::calculate_pnl() const {
-  double pnl = cash_;
-  /*
-  for (const std::pair<const std::string, std::pair<int, double>>& n : holdings_) {
-    std::pair<int, double> holding = n.second;
-    pnl += holding.second;
+double Portfolio::unrealized_pnl(const std::unordered_map<std::string, double> prices) const {
+  double upnl = 0.0;
+  for (const std::pair<const std::string, Position>& e : positions_) {
+    std::string ticker = e.first;
+    Position p = e.second;
+
+    auto it = prices.find(ticker);
+    if (it == prices.end()) {
+      continue;
+    }
+
+    //calculate pnl
+    double price = it->second;
+    double avg_cost = p.cost_basis / p.quantity;
+    upnl += (price - avg_cost) * p.quantity;
   }
-  */
-  return pnl;
+  return upnl;
+}
+
+double Portfolio::get_pnl(const std::unordered_map<std::string, double> prices) const {
+  return realized_pnl_ + this->unrealized_pnl(prices);
 }

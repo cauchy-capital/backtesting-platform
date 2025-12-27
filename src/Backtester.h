@@ -23,5 +23,6 @@ class Backtester {
     Portfolio portfolio_;
     std::unique_ptr<IDataFeed> curr_feed_;
     std::unique_ptr<IStrategy> curr_strat_;
+    Quote last_quote_;
 };
 
