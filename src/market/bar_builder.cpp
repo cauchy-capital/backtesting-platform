@@ -61,7 +61,7 @@ double BarBuilder::calc_price(const Quote& quote) {
 }
 
 //EUGH
-std::chrono::sys_time<std::chrono::milliseconds> floorMsTimestamp(
+std::chrono::sys_time<std::chrono::milliseconds> BarBuilder::floorMsTimestamp(
     std::chrono::sys_time<std::chrono::milliseconds> ts) {
 
   std::chrono::sys_time<std::chrono::seconds> floored = std::chrono::floor<std::chrono::seconds>(ts);
