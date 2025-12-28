@@ -1,10 +1,11 @@
 #pragma once
 
-#include <ctime>
+#include <string>
+#include <chrono>
 
 struct Quote {
   std::string ticker;
-  time_t ts;
+  std::chrono::sys_time<std::chrono::milliseconds> ts;
   double bid;
   double ask;
   double bidVol;

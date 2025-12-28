@@ -1,8 +1,7 @@
 #include <fstream>
 #include <iostream>
-#include <iomanip>
 #include <sstream>
-#include <ctime>
+#include <chrono>
 
 #include "csv_data_feed.h"
 
@@ -76,21 +75,23 @@ std::vector<std::string> CsvDataFeed::splitTab(const std::string& line) {
   return fields;
 }
 
-std::time_t CsvDataFeed::parseTimeStamp(const std::string& s) {
+std::chrono::sys_time<std::chrono::milliseconds> CsvDataFeed::parseTimeStamp(const std::string& s) {
   // Example input:
   // 17.11.2025 01:30:00.786 GMT-0000
 
-  // take only: 17.11.2025 01:30:00
-  std::string datetime = s.substr(0,19);
+  // take only: 17.11.2025 01:30:00.786
+  std::string datetime = s.substr(0,23);
+  std::cout << "parsing: " << datetime << std::endl;
 
 
-  std::tm tm{};
-  std::istringstream ss(datetime);
-  ss >> std::get_time(&tm, "%d.%m.%Y %H:%M:%S");
+  std::istringstream stream(datetime);
+  std::chrono::sys_time<std::chrono::milliseconds> time;
+  std::chrono::from_stream(stream, "%d.%m.%Y %H:%M:%S", time);
 
-  if (ss.fail()) {
+  if (stream.fail()) {
     throw std::runtime_error("Failed to parse timestamp: " + s);
   }
+  std::cout << "parsed: " << time << std::endl;
 
-  return std::mktime(&tm);
+  return time;
 }

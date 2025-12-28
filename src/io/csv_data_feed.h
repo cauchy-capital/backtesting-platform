@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <chrono>
 
 #include "idata_feed.h"
 
@@ -18,5 +19,5 @@ private:
 
   std::vector<std::string> splitTab(const std::string& line);
 
-  std::time_t parseTimeStamp(const std::string& s);
+  std::chrono::sys_time<std::chrono::milliseconds> parseTimeStamp(const std::string& s);
 };
