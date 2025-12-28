@@ -1,4 +1,7 @@
 build/*
+.cache/*
 .idea/*
 .clang-format
+compile_commands.json
+
 
