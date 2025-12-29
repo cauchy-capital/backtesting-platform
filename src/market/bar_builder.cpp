@@ -17,7 +17,7 @@ std::vector<Bar> BarBuilder::buildBars(std::vector<Quote>& quotes) {
   double low = first_price;
   double close;
 
-  std::chrono::sys_time<std::chrono::milliseconds> begin_ts = this->floorMsTimestamp(quotes[0].ts);
+  std::chrono::sys_time<std::chrono::milliseconds> begin_ts = this->floorTsByMagnitude(quotes[0].ts);
   std::chrono::sys_time<std::chrono::milliseconds> close_ts = begin_ts + ms_interval_;
   Quote last_quote;
   for (Quote& q : quotes) {
@@ -73,11 +73,31 @@ double BarBuilder::calc_price(const Quote& quote) {
 }
 
 //EUGH
-std::chrono::sys_time<std::chrono::milliseconds> BarBuilder::floorMsTimestamp(
-    std::chrono::sys_time<std::chrono::milliseconds> ts) {
 
-  std::chrono::sys_time<std::chrono::seconds> floored = std::chrono::floor<std::chrono::seconds>(ts);
-  return time_point_cast<std::chrono::milliseconds>(floored);
+static std::chrono::milliseconds orderOfMagnitude(std::chrono::milliseconds interval) {
+  auto n = interval.count();
+  
+  if (n <= 0) {
+    return std::chrono::milliseconds{0};
+  }
+
+  std::int64_t mag = 1;
+  while (mag <= n / 10) {
+    mag *= 10;
+  }
+  return std::chrono::milliseconds{mag};
 }
 
+std::chrono::sys_time<std::chrono::milliseconds> BarBuilder::floorTsByMagnitude(
+    std::chrono::sys_time<std::chrono::milliseconds> ts) {
+  std::chrono::milliseconds step = orderOfMagnitude(ms_interval_);
+  if (step.count() == 0) {
+    return ts;
+  }
+  
+  auto d = ts.time_since_epoch();
+  auto floored = d - (d % step);
+  return std::chrono::sys_time<std::chrono::milliseconds>{floored};
+}
+    
 

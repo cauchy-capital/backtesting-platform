@@ -15,7 +15,7 @@ public:
 
   double calc_price(const Quote& quote);
 
-  std::chrono::sys_time<std::chrono::milliseconds> floorMsTimestamp(
+  std::chrono::sys_time<std::chrono::milliseconds> floorTsByMagnitude(
     std::chrono::sys_time<std::chrono::milliseconds> ts);
 
 private:
