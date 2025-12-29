@@ -52,6 +52,11 @@ std::vector<Bar> BarBuilder::buildBars(std::vector<Quote>& quotes) {
     } 
     last_quote = q;
   }
+  //close final bar
+  std::chrono::sys_time<std::chrono::milliseconds> close_ts = begin_ts + ms_interval_;
+  close = this->calc_price(last_quote);
+  Bar bar{ticker, begin_ts, close_ts, open, high, low, close};
+  bars.push_back(bar);
 
   return bars;
 }
