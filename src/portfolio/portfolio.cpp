@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Portfolio::Portfolio(double cash) : cash_(cash)  {}
+Portfolio::Portfolio(double cash) : cash_(cash), realized_pnl_(0)  {}
 
 void Portfolio::record(const Decision& decision) {
   if (decision.quantity == 0) {
@@ -53,5 +53,6 @@ double Portfolio::unrealized_pnl(const std::unordered_map<std::string, double> p
 }
 
 double Portfolio::get_pnl(const std::unordered_map<std::string, double> prices) const {
+  std::cout << "realized_pnl: " << realized_pnl_ << "\n unrealized_pnl: " << this->unrealized_pnl(prices) << std::endl;
   return realized_pnl_ + this->unrealized_pnl(prices);
 }

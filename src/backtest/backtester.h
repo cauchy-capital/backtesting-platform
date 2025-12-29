@@ -6,6 +6,7 @@
 #include "../io/idata_feed.h"
 #include "../strategy/istrategy.h"
 #include "../market/decision.h"
+#include "../market/bar_builder.h"
 
 class Backtester {
   public:
@@ -23,6 +24,6 @@ class Backtester {
     Portfolio portfolio_;
     std::unique_ptr<IDataFeed> curr_feed_;
     std::unique_ptr<IStrategy> curr_strat_;
-    Quote last_quote_;
+    Bar last_bar_;
 };
 

@@ -5,21 +5,21 @@
 #include "strategy/buy_everything_strategy.h"
 
 int main(int argc, char *argv[]) {
-  if (argc > 2) {
-    std::cerr << "Usage: " << argv[0] << " <csv_file>" << std::endl;
+  if (argc > 3) {
+    std::cerr << "Usage: " << argv[0] << " <csv_file> <ticker_name>" << std::endl;
     return 1;
   }
 
   std::string filename = argv[1];
-  std::string ticker = "0005.HKHKD";
+  std::string ticker = argv[2];
 
   // TODO: use quotes for backtester
-  Backtester b(100);
+  double starting_cash = 100;
+  Backtester b(starting_cash);
 
   b.set_feed(std::make_unique<CsvDataFeed>(filename));
   b.set_strat(std::make_unique<BuyEverythingStrategy>(ticker));
 
-  // TODO: print total profit/loss!
   b.run_backtest();
   double pnl = b.results();
 

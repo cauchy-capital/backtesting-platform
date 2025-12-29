@@ -8,5 +8,5 @@
 class IStrategy {
 public:
   // ignore the irony of it taking a quote when the name is onBar. WILL FIX L8R!
-  virtual Decision onBar(Quote) = 0;
+  virtual Decision onBar(Bar) = 0;
 };
