@@ -11,5 +11,5 @@ struct Bar {
   double high;
   double low;
   double close;
-  double volume;
+  bool data_gap;
 };
