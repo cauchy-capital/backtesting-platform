@@ -1,7 +1,8 @@
 #include <iostream>
 
 #include "backtester.h"
-
+#include "../market/decision.h"
+#include "../market/bar_builder.h"
 
 Backtester::Backtester(double cash) : portfolio_(cash) {}
 

@@ -5,8 +5,6 @@
 #include "../portfolio/portfolio.h"
 #include "../io/idata_feed.h"
 #include "../strategy/istrategy.h"
-#include "../market/decision.h"
-#include "../market/bar_builder.h"
 
 class Backtester {
   public:
