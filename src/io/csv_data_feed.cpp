@@ -5,8 +5,8 @@
 
 #include "csv_data_feed.h"
 
-CsvDataFeed::CsvDataFeed(std::string filepath) 
-  : filepath_(filepath) {}
+CsvDataFeed::CsvDataFeed(std::string filepath, std::string ticker) 
+  : filepath_(filepath), ticker_(ticker) {}
 
 std::vector<Quote> CsvDataFeed::loadData() {
   std::vector<Quote> bars;
@@ -41,7 +41,7 @@ std::vector<Quote> CsvDataFeed::loadData() {
 
     // create quote
     Quote q;
-    q.ticker = ticker_name_;
+    q.ticker = ticker_;
     q.ts = parseTimeStamp(fields[0]);
     q.ask = std::stod(fields[1]);
     q.bid = std::stod(fields[2]);

@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
   double starting_cash = 100;
   Backtester b(starting_cash);
 
-  b.set_feed(std::make_unique<CsvDataFeed>(filename));
+  b.set_feed(std::make_unique<CsvDataFeed>(filename, ticker));
   b.set_strat(std::make_unique<BuyEverythingStrategy>(ticker));
 
   b.run_backtest();
