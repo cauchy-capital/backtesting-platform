@@ -10,6 +10,11 @@ navigate to the root of the project and run:
 
 The executable should now be available in the /build/ directory.
 
+## To Test
+build the project, and then navigate to the build directory. run:
+
+`ctest`
+
 
 ## Code Style
 Google's code style: https://google.github.io/styleguide/cppguide.html
