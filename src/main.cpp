@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
   Backtester b(starting_cash);
 
   b.set_feed(std::make_unique<CsvDataFeed>(filename, ticker));
-  b.set_strat(std::make_unique<BuyEverythingStrategy>(ticker));
+  b.set_strat(std::make_unique<SmaCrossStrategy>(ticker));
 
   b.run_backtest();
   double pnl = b.results();
