@@ -122,7 +122,7 @@ data_feed = cb.CsvDataFeed(
 )
 b.set_feed(data_feed)
 
-strat = cb.SmaCrossStrategy()  # or your custom strategy
+strat = cb.SmaCrossStrategy(ticker="0005.HKHKD")  # or your custom strategy
 b.set_strat(strat)
 
 b.run_backtest()
