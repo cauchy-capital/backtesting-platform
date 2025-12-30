@@ -1,95 +1,152 @@
-# Cauchy In-House Backtesting Platform
+# Cauchy In‑House Backtesting Platform
 
-A C++ backtesting platform, with python bindings, created for Cauchy Capital
+A C++ backtesting platform with Python bindings, created for **Cauchy Capital**.
 
-## How To Build
-navigate to the root of the project and run: 
+---
 
-`cmake -B build` </br>
-`cmake --build build`
+## Build
 
-The executable should now be available in the /build/ directory.
+From the root of the project:
 
-## How To Use
-
-Once built, the python package `cauchybacktest` lives inside the build/ directory. Create any python file in the build/ directory to run a backtest.
-
-### Creating a Backtester
-To run a backtest, first create a `cauchybacktest.Backtester`, specifying the `starting_cash` on creation.
-```
-b = cauchybacktest.Backtester(starting_cash=100.0)
+```bash
+cmake -B build
+cmake --build build
 ```
 
-A backtester requires a data feed and a strategy to run. 
+After a successful build, the executable will be available in the `build/` directory.
 
-### Creating a Data Feed
-A backtester requires a data feed to run.
+---
 
-To create a datafeed, create a `cauchybacktest.CsvDataFeed`, specifying the `filepath` and `ticker` on creation.
+## Usage (Python)
 
-`filepath`: a string, the filepath to a CSV, containing quotes in the following format:
+Once built, the Python package **`cauchybacktest`** lives inside the `build/` directory.  
+Create and run your Python backtest scripts from within `build/`.
 
-Local Time (in DD.MM.YYYY hh:mm:ss.f), Ask, Bid, AskVolume, BidVolume
+### 1) Create a `Backtester`
 
-with comma delimiters.
+Create a `cauchybacktest.Backtester`, specifying the `starting_cash`:
 
-`ticker`: the name of the ticker.
+```python
+import cauchybacktest as cb
 
-you can create a data feed as such:
-
-```
-data_feed = cauchybacktest.CsvDataFeed(filepath=<filepath>, ticker=<ticker-for-data>)
-```
-## Creating a Strategy
-A backtester requires a strategy to run.
-
-a default strategy, `cauchybacktest.SmaCrossStrategy`, already exist within the module.
-
-to implement your own strategy, implement the `cauchybacktest.IStrategy` interface with a class, with the `onBar(bar: cauchybacktest.Bar) -> cauchybacktest.Decision:` method. e.g:
-
-```
-Import cauchybacktest as cb
-
-Class ExampleStrat(cb.IStrategy):
-  def __init__(self, ticker):
-    super().__init__()
-    self.t = ticker
-
-  def onBar(self, bar: cb.Bar) -> cb.Decision:
-    price = bar.close
-    qty = 100
-    ...
-    return cb.Decision(bar.ticker, qty, price) # buy ticker at price bar.close, for quantity of 100 units.
+b = cb.Backtester(starting_cash=100.0)
 ```
 
-### Running a backtest
-You can then set strategies and datafeeds as follows, using set_feed, and set_strat:
+A backtester requires:
 
+- a **data feed**
+- a **strategy**
+
+---
+
+### 2) Create a data feed
+
+Create a `cauchybacktest.CsvDataFeed`, specifying:
+
+- `filepath`: path to a CSV containing quotes (see **CSV format** below)
+- `ticker`: ticker name to associate with the feed
+
+```python
+import cauchybacktest as cb
+
+data_feed = cb.CsvDataFeed(
+    filepath="<path/to/file.csv>",
+    ticker="<ticker>"
+)
 ```
+
+#### CSV format
+
+The CSV must have **comma-delimited** columns in this order:
+
+1. **Local Time** (`DD.MM.YYYY hh:mm:ss.f`)
+2. **Ask**
+3. **Bid**
+4. **AskVolume**
+5. **BidVolume**
+
+Example header:
+
+```text
+Local Time,Ask,Bid,AskVolume,BidVolume
+```
+
+---
+
+### 3) Create a strategy
+
+A default strategy is available:
+
+- `cauchybacktest.SmaCrossStrategy`
+
+To implement your own strategy, implement the `cauchybacktest.IStrategy` interface and define:
+
+- `onBar(bar: cauchybacktest.Bar) -> cauchybacktest.Decision`
+
+#### Minimal custom strategy skeleton
+
+```python
+import cauchybacktest as cb
+
+class ExampleStrat(cb.IStrategy):
+    def __init__(self, ticker: str):
+        super().__init__()
+        self.ticker = ticker
+
+    def onBar(self, bar: cb.Bar) -> cb.Decision:
+        price = bar.close
+        qty = 100
+
+        # ... your logic here ...
+
+        # Buy `bar.ticker` at `price` for quantity `qty`
+        return cb.Decision(bar.ticker, qty, price)
+```
+
+> **Note:** Returning `cb.Decision(bar.ticker, 0, price)` indicates **no trade** on this bar.
+
+---
+
+### 4) Run a backtest
+
+Set the feed and strategy using `set_feed()` and `set_strat()`, then run:
+
+```python
+import cauchybacktest as cb
+
 b = cb.Backtester(starting_cash=100.0)
 
-data_feed = cb.CsvDataFeed(filepath="../data/0005.HKHKD_Ticks_17.11.2025-17.11.2025.csv", 
-                           ticker="0005.HKHKD")
+data_feed = cb.CsvDataFeed(
+    filepath="../data/0005.HKHKD_Ticks_17.11.2025-17.11.2025.csv",
+    ticker="0005.HKHKD",
+)
 b.set_feed(data_feed)
 
-strat = ExampleStrat(ticker="0005.HKHKD")
+strat = cb.SmaCrossStrategy()  # or your custom strategy
 b.set_strat(strat)
 
 b.run_backtest()
-
 ```
 
-### Results
-Currently, only PNL is available as a statistic. Once a backtest has been run, to view pnl:
+---
 
+## Results
 
+Currently, the only available statistic is **PNL**.
 
+After running a backtest:
+
+```python
+b.run_backtest()
+pnl = b.results()
+print("PNL:", pnl)
 ```
-b.run_backtest
-b.results
-```
-### Example: SMA Cross Strategy backtest
-```
+
+---
+
+## Example: SMA Cross Strategy backtest (custom implementation)
+
+```python
 import cauchybacktest as cb
 from collections import deque
 
@@ -99,7 +156,7 @@ class ExampleSmaCross(cb.IStrategy):
         self.t, self.s, self.l, self.q = ticker, short, long, qty
         self.c = deque(maxlen=long)
         self.pos = False
-        self.ps = self.pl = None  # previous short/long sma
+        self.ps = self.pl = None  # previous short/long SMA values
 
     def onBar(self, bar: cb.Bar) -> cb.Decision:
         price = bar.close
@@ -118,8 +175,10 @@ class ExampleSmaCross(cb.IStrategy):
         if self.ps is not None:
             up = self.ps <= self.pl and s > l
             dn = self.ps >= self.pl and s < l
-            if up and not self.pos: qty, self.pos = +self.q, True
-            elif dn and self.pos:  qty, self.pos = -self.q, False
+            if up and not self.pos:
+                qty, self.pos = +self.q, True
+            elif dn and self.pos:
+                qty, self.pos = -self.q, False
 
         self.ps, self.pl = s, l
         return cb.Decision(bar.ticker, qty, price)
@@ -127,8 +186,10 @@ class ExampleSmaCross(cb.IStrategy):
 
 b = cb.Backtester(starting_cash=100.0)
 
-data_feed = cb.CsvDataFeed(filepath="../data/0005.HKHKD_Ticks_17.11.2025-17.11.2025.csv", 
-                           ticker="0005.HKHKD")
+data_feed = cb.CsvDataFeed(
+    filepath="../data/0005.HKHKD_Ticks_17.11.2025-17.11.2025.csv",
+    ticker="0005.HKHKD",
+)
 b.set_feed(data_feed)
 
 strat = ExampleSmaCross(ticker="0005.HKHKD")
@@ -136,28 +197,32 @@ b.set_strat(strat)
 
 b.run_backtest()
 pnl = b.results()
-print("PNL: ", round(pnl, 2))
-
+print("PNL:", round(pnl, 2))
 ```
 
+---
 
-## To Test
-build the project, and then navigate to the build directory. run:
+## Testing
 
-`ctest`
+Build the project, then from the `build/` directory run:
 
+```bash
+ctest
+```
 
-## Code Style
-Google's code style: https://google.github.io/styleguide/cppguide.html
+---
 
+## Code style
 
-## Git Conventions
-Conventional commits: https://www.conventionalcommits.org/en/v1.0.0/
+- Follow Google C++ Style Guide:  
+  https://google.github.io/styleguide/cppguide.html
 
-Branch off for every feature/fix. PR to merge.
-PR must be reviewed by other member.
+---
 
+## Git conventions
 
-
-
-
+- Conventional Commits:  
+  https://www.conventionalcommits.org/en/v1.0.0/
+- Branch off for every feature/fix.
+- Open a PR to merge.
+- PRs must be reviewed by another team member.
