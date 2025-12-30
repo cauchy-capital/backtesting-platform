@@ -20,12 +20,12 @@ void Backtester::run_backtest() {
 
   //run backtest
   for (Bar& bar : bars) {
-    std::cout << "CURR BAR: PRICE=" << bar.low << std::endl;
     Decision decision = curr_strat_->onBar(bar);
     portfolio_.record(decision);
 
     last_bar_ = bar;
   }
+  std::cout << "last BAR: PRICE=" << last_bar_.close << std::endl;
 }
 
 double Backtester::results() {
