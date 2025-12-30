@@ -4,7 +4,7 @@
 BuyEverythingStrategy::BuyEverythingStrategy(std::string ticker_to_buy)
   : ticker_to_buy_(ticker_to_buy) {}
 
-Decision BuyEverythingStrategy::onBar(Bar bar) {
+Decision BuyEverythingStrategy::onBar(const Bar& bar) {
   double price = bar.low;
 
   if (bought_tickers_.find(bar.ticker) ==  bought_tickers_.end()) {

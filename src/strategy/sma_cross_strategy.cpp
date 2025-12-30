@@ -31,7 +31,7 @@ double SmaCrossStrategy::sma_last_n_(std::size_t n) const {
   return sum / static_cast<double>(n);
 }
 
-Decision SmaCrossStrategy::onBar(Bar bar) {
+Decision SmaCrossStrategy::onBar(const Bar& bar) {
   // If you want to strictly trade only the configured ticker:
   if (!ticker_.empty() && bar.ticker != ticker_) {
     return Decision{bar.ticker, 0, bar.close};

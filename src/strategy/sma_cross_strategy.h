@@ -15,7 +15,7 @@ public:
                    std::size_t long_window  = 30,
                    int trade_qty            = 10);
 
-  Decision onBar(Bar bar) override;
+  Decision onBar(const Bar &bar) override;
 
 private:
   double sma_last_n_(std::size_t n) const;
