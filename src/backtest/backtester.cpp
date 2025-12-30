@@ -30,6 +30,7 @@ void Backtester::run_backtest() {
 
 double Backtester::results() {
   // need ticker:price
+  std::cout << std::endl;
   std::string ticker = last_bar_.ticker;
   return portfolio_.get_pnl({{ticker, last_bar_.low}});
 }

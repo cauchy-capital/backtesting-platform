@@ -9,7 +9,8 @@ void Portfolio::record(const Decision& decision) {
     //dont do anything
     return;
   }
-  std::cout << "DECISION: " << decision.quantity << "@" << decision.price << std::endl;
+  std::cout << "ORDER FILLED: " << 
+    decision.quantity << "@" << decision.price << std::endl;
 
   auto& pos = positions_[decision.ticker];
 
@@ -70,6 +71,9 @@ void Portfolio::record(const Decision& decision) {
   if (pos.quantity == 0) {
     positions_.erase(decision.ticker);
   }
+
+  std::cout << "[cash/realized/position: " << cash_ << ", " << realized_pnl_ 
+    << ", " << pos.quantity << "(" << pos.cost_basis << ")" << "]" << std::endl;
 
   history_.push_back(decision);
 }
