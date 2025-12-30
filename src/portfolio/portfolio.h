@@ -6,7 +6,7 @@
 #include "../market/decision.h"
 
 struct Position {
-  double quantity;
+  int quantity;
   double cost_basis; //cumulative amount spent on current holdings
 };
 
