@@ -15,6 +15,7 @@ add_executable(CauchyBacktester
         src/backtest/backtester.cpp
         src/io/csv_data_feed.cpp
         src/strategy/buy_everything_strategy.cpp
+        src/strategy/sma_cross_strategy.cpp
         src/market/bar_builder.cpp
 )
 
