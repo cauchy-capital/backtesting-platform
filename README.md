@@ -16,8 +16,9 @@ Once built, the python package `cauchybacktest` lives inside the build/ director
 
 ### Creating a Backtester
 To run a backtest, first create a `cauchybacktest.Backtester`, specifying the `starting_cash` on creation.
-
-`b = cauchybacktest.Backtester(starting_cash=100.0)`
+```
+b = cauchybacktest.Backtester(starting_cash=100.0)
+```
 
 A backtester requires a data feed and a strategy to run. 
 
@@ -35,7 +36,10 @@ with comma delimiters.
 `ticker`: the name of the ticker.
 
 you can create a data feed as such:
-`data_feed = cauchybacktest.CsvDataFeed(filepath=<filepath>, ticker=<ticker-for-data)`
+
+```
+data_feed = cauchybacktest.CsvDataFeed(filepath=<filepath>, ticker=<ticker-for-data>)
+```
 ## Creating a Strategy
 A backtester requires a strategy to run.
 
