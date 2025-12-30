@@ -66,6 +66,11 @@ void Portfolio::record(const Decision& decision) {
     }
     cash_ -= buy_qty * decision.price;
   }
+
+  if (pos.quantity == 0) {
+    positions_.erase(decision.ticker);
+  }
+
   history_.push_back(decision);
 }
 
