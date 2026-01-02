@@ -13,6 +13,9 @@ include(FetchContent)
 add_library(cauchy_core STATIC
   src/portfolio/portfolio.cpp
   src/backtest/backtester.cpp
+  src/backtest/event.cpp
+  src/backtest/market_event.cpp
+  src/backtest/signal_event.cpp
   src/io/csv_data_feed.cpp
   src/strategy/buy_everything_strategy.cpp
   src/strategy/sma_cross_strategy.cpp
@@ -36,20 +39,20 @@ target_link_libraries(CauchyBacktester PRIVATE cauchy_core)
 # ----------------------------
 # pybind11 (Python module)
 # ----------------------------
-FetchContent_Declare(
-  pybind11
-  GIT_REPOSITORY https://github.com/pybind/pybind11.git
-  GIT_TAG v2.13.6
-)
-FetchContent_MakeAvailable(pybind11)
+#FetchContent_Declare(
+#  pybind11
+#  GIT_REPOSITORY https://github.com/pybind/pybind11.git
+#  GIT_TAG v2.13.6
+#)
+#FetchContent_MakeAvailable(pybind11)
 
 # The Python module name will be "traderbacktest" (or change it to what you want)
-pybind11_add_module(cauchybacktest MODULE
-  src/python/bindings.cpp
-)
+#pybind11_add_module(cauchybacktest MODULE
+#  src/python/bindings.cpp
+#)
 
-target_link_libraries(cauchybacktest PRIVATE cauchy_core)
-target_include_directories(cauchybacktest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+#target_link_libraries(cauchybacktest PRIVATE cauchy_core)
+#target_include_directories(cauchybacktest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Optional: nicer errors if symbols are missing at import-time
 # (mostly relevant on Linux/macOS)
