@@ -4,12 +4,14 @@
 BuyEverythingStrategy::BuyEverythingStrategy(std::string ticker_to_buy)
   : ticker_to_buy_(ticker_to_buy) {}
 
-Decision BuyEverythingStrategy::onBar(const Bar& bar) {
+SignalEvent BuyEverythingStrategy::onBar(const MarketEvent& e) {
+  Bar bar = e.bar;
   double price = bar.low;
 
   if (bought_tickers_.find(bar.ticker) ==  bought_tickers_.end()) {
     // buy 
-    Decision buy{bar.ticker, 10, price};
+    //Decision buy{bar.ticker, 10, price};
+    SignalEvent buy = SignalEvent();
     bought_tickers_[bar.ticker] = {10, price};
 
     return buy;
@@ -17,13 +19,15 @@ Decision BuyEverythingStrategy::onBar(const Bar& bar) {
 
   if (bought_tickers_[bar.ticker].second < price) {
     //sell
-    Decision sell{bar.ticker, -10, price};
+    SignalEvent sell = SignalEvent();
+    //Decision sell{bar.ticker, -10, price};
     bought_tickers_.erase(bar.ticker);
     
     return sell;
   }
 
   // already own, dont do anything
-  Decision nothing{bar.ticker, 0, price};
+  SignalEvent nothing = SignalEvent();
+  //Decision nothing{bar.ticker, 0, price};
   return nothing;
 }

@@ -1,6 +1,9 @@
-#include "sma_cross_strategy.h"
-
 #include <stdexcept>
+
+
+#include "sma_cross_strategy.h"
+#include "../backtest/signal_event.h"
+
 
 SmaCrossStrategy::SmaCrossStrategy(std::string ticker,
                                    std::size_t short_window,
@@ -31,10 +34,13 @@ double SmaCrossStrategy::sma_last_n_(std::size_t n) const {
   return sum / static_cast<double>(n);
 }
 
-Decision SmaCrossStrategy::onBar(const Bar& bar) {
+SignalEvent SmaCrossStrategy::onBar(const MarketEvent& e) {
+  Bar bar = e.bar;
+
   // If you want to strictly trade only the configured ticker:
   if (!ticker_.empty() && bar.ticker != ticker_) {
-    return Decision{bar.ticker, 0, bar.close};
+    //return Decision{bar.ticker, 0, bar.close};
+    return SignalEvent{};
   }
 
   // Use close as the signal/decision price (you can swap to bar.open, bar.low, etc.).
@@ -48,7 +54,8 @@ Decision SmaCrossStrategy::onBar(const Bar& bar) {
 
   // Need enough history to compute long SMA
   if (closes_.size() < long_window_) {
-    return Decision{bar.ticker, 0, price};
+    //return Decision{bar.ticker, 0, price};
+    return SignalEvent{};
   }
 
   const double short_sma = sma_last_n_(short_window_);
@@ -59,7 +66,8 @@ Decision SmaCrossStrategy::onBar(const Bar& bar) {
     has_prev_sma_ = true;
     prev_short_sma_ = short_sma;
     prev_long_sma_  = long_sma;
-    return Decision{bar.ticker, 0, price};
+    //return Decision{bar.ticker, 0, price};
+    return SignalEvent{};
   }
 
   const bool crossed_up =
@@ -74,14 +82,18 @@ Decision SmaCrossStrategy::onBar(const Bar& bar) {
 
   if (!has_position_ && crossed_up) {
     has_position_ = true;
-    return Decision{bar.ticker, trade_qty_, price};   // BUY
+    //return Decision{bar.ticker, trade_qty_, price};   // BUY
+    return SignalEvent{};
   }
 
   if (has_position_ && crossed_down) {
     has_position_ = false;
-    return Decision{bar.ticker, -trade_qty_, price};  // SELL
+    //return Decision{bar.ticker, -trade_qty_, price};  // SELL
+    return SignalEvent{};
+
   }
 
-  return Decision{bar.ticker, 0, price};              // HOLD
+  //return Decision{bar.ticker, 0, price};              // HOLD
+  return SignalEvent{};
 }
 

@@ -9,7 +9,7 @@ class BuyEverythingStrategy : public IStrategy {
 public:
   BuyEverythingStrategy(std::string);
 
-  Decision onBar(const Bar &bar) override;
+  SignalEvent onBar(const MarketEvent &e) override;
 
 private:
   std::string ticker_to_buy_;
