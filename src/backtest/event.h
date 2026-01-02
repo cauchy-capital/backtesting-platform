@@ -4,9 +4,8 @@
 
 class Event {
 public:
-  Event(std::string type);
-
-private:
-  std::string type_;
+  virtual ~Event() = default;
+  explicit Event(std::string type);
+  std::string type;
 };
 

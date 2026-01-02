@@ -1,3 +1,3 @@
 #include "event.h"
 
-Event::Event(std::string type) : type_(type){}
+Event::Event(std::string type) : type(std::move(type)){}
