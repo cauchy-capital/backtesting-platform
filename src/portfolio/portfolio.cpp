@@ -18,12 +18,15 @@ OrderEvent Portfolio::handle_signal(SignalEvent signal) {
       return OrderEvent{ticker, order_amnt, BUY, signal.bar};
     case SHORT:
       return OrderEvent{ticker, order_amnt, SELL, signal.bar};
-    case EXIT: 
+    case EXIT: {
       std::size_t pos_amount = static_cast<std::size_t>(std::abs(cur_pos));
       if (cur_pos < 0) 
         return OrderEvent{ticker, pos_amount, BUY, signal.bar};
       else
         return OrderEvent{ticker, pos_amount, SELL, signal.bar};
+      }
+    default:
+      return OrderEvent{ticker, 0, BUY, signal.bar};
   }
 }
 

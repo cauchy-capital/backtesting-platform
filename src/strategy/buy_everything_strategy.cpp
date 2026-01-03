@@ -10,7 +10,7 @@ SignalEvent BuyEverythingStrategy::onBar(const MarketEvent& e) {
 
   if (bought_tickers_.find(bar.ticker) ==  bought_tickers_.end()) {
     // buy 
-    SignalEvent buy = SignalEvent(bar.ticker, LONG);
+    SignalEvent buy = SignalEvent(bar.ticker, LONG, bar);
     bought_tickers_[bar.ticker] = {10, price};
 
     return buy;
@@ -18,13 +18,13 @@ SignalEvent BuyEverythingStrategy::onBar(const MarketEvent& e) {
 
   if (bought_tickers_[bar.ticker].second < price) {
     //sell
-    SignalEvent sell = SignalEvent(bar.ticker, SHORT);
+    SignalEvent sell = SignalEvent(bar.ticker, SHORT, bar);
     bought_tickers_.erase(bar.ticker);
     
     return sell;
   }
 
   // already own, dont do anything
-  SignalEvent nothing = SignalEvent(bar.ticker, NOACT);
+  SignalEvent nothing = SignalEvent(bar.ticker, NOACT, bar);
   return nothing;
 }
