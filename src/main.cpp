@@ -5,6 +5,7 @@
 #include "backtest/backtester.h"
 #include "strategy/buy_everything_strategy.h"
 #include "strategy/sma_cross_strategy.h"
+#include "execution/simulated_execution_handler.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 3) {
@@ -21,6 +22,7 @@ int main(int argc, char *argv[]) {
 
   b.set_feed(std::make_unique<CsvDataFeed>(filename, ticker));
   b.set_strat(std::make_unique<SmaCrossStrategy>(ticker));
+  b.set_execution_handler(std::make_unique<SimulatedExecutionHandler>());
 
   b.run_backtest();
   double pnl = b.results();

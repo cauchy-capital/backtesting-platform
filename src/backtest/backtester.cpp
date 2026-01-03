@@ -1,6 +1,5 @@
 #include <iostream>
 #include <queue>
-#include <variant>
 
 #include "backtester.h"
 #include "../market/bar_builder.h"
@@ -82,6 +81,10 @@ void Backtester::set_feed(std::unique_ptr<IDataFeed> feed) {
 
 void Backtester::set_strat(std::unique_ptr<IStrategy> strat) {
   curr_strat_ = std::move(strat);
+}
+
+void Backtester::set_execution_handler(std::unique_ptr<IExecutionHandler> exec_handler) {
+  curr_execution_handler_ = std::move(exec_handler);
 }
 
 
