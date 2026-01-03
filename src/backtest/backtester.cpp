@@ -25,17 +25,17 @@ void Backtester::run_backtest() {
   std::vector<Bar> bars = bar_builder.buildBars(quotes);
 
   // create market events out of bars.
-  std::vector<MarketEvent> marketEvents;
+  std::vector<MarketEvent> market_events;
   for (Bar bar : bars) {
     MarketEvent m(bar);
-    marketEvents.push_back(m);
+    market_events.push_back(m);
   }
 
   //run backtest
   std::queue<std::unique_ptr<Event>> event_queue;
-  while (marketEvents.size() > 0) {
-    auto me = std::make_unique<MarketEvent>(std::move(marketEvents.front()));
-    marketEvents.erase(marketEvents.begin());
+  while (market_events.size() > 0) {
+    auto me = std::make_unique<MarketEvent>(std::move(market_events.front()));
+    market_events.erase(market_events.begin());
     event_queue.push(std::move(me));
 
 
@@ -55,7 +55,9 @@ void Backtester::run_backtest() {
       } else if (e->type == "SIGNAL") {
         auto* se = dynamic_cast<SignalEvent*>(e.get());
         if (se) {
-          //dispatch to handler
+          OrderEvent oe = portfolio_.handle_signal(*se);
+          auto coe = std::make_unique<OrderEvent>(std::move(oe));
+          event_queue.push(std::move(coe));
         }
       }
     }

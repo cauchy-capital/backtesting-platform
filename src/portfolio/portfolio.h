@@ -4,6 +4,8 @@
 #include <unordered_map>
 
 #include "../market/decision.h"
+#include "../backtest/signal_event.h"
+#include "../backtest/order_event.h"
 
 struct Position {
   int quantity;
@@ -13,6 +15,8 @@ struct Position {
 class Portfolio {
  public:
   Portfolio(double cash);
+
+  OrderEvent handle_signal(SignalEvent signal);
 
   void record(const Decision& decision);
 
