@@ -46,6 +46,12 @@ void Backtester::run_backtest() {
       if (e->type == MARKET) {
         auto* me = dynamic_cast<MarketEvent*>(e.get());
         if (me) {
+          // notify execution handler
+          FillEvent fe = curr_execution_handler_->onMarket(*me);
+          auto cfe = std::make_unique<FillEvent>(std::move(fe));
+          event_queue.push(std::move(cfe));
+
+          // generate signal
           SignalEvent se = curr_strat_->onBar(*me);
           auto cse = std::make_unique<SignalEvent>(std::move(se));
           event_queue.push(std::move(cse));
@@ -58,9 +64,9 @@ void Backtester::run_backtest() {
           event_queue.push(std::move(coe));
         }
       } else if (e->type == ORDER) {
-        auto* oe = dynamic_cast<SignalEvent*>(e.get());
+        auto* oe = dynamic_cast<OrderEvent*>(e.get());
         if (oe) {
-
+          curr_execution_handler_->handleOrder(*oe);
         }
       }
     }
