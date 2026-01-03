@@ -53,7 +53,9 @@ FillEvent SimulatedExecutionHandler::onMarket(MarketEvent market) {
   }
 
   PendingOrder& pending_order = pending_orders_[ticker];
-  assert (pending_order.quantity > 0);
+  if (pending_order.quantity == 0) {
+    return empty;
+  }
   
   if (!(new_bar_ts > pending_order.last_order_ts)) {
     return empty;
