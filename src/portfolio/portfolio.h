@@ -6,6 +6,7 @@
 #include "../market/decision.h"
 #include "../core/signal_event.h"
 #include "../core/order_event.h"
+#include "../core/fill_event.h"
 
 struct Position {
   int quantity;
@@ -18,7 +19,9 @@ class Portfolio {
 
   OrderEvent handle_signal(SignalEvent signal);
 
-  void record(const Decision& decision);
+  void on_fill(FillEvent fill);
+
+  void record(std::string ticker, std::size_t quantity, double fill_price, OrderSide order_side);
 
   double unrealized_pnl(const std::unordered_map<std::string, double> prices) const;
 
@@ -26,7 +29,7 @@ class Portfolio {
 
  private:
   std::unordered_map<std::string, Position> positions_; 
-  std::vector<Decision> history_;
+  std::vector<FillEvent> history_;
   double cash_;  
   double initial_holdings_;
   double realized_pnl_;

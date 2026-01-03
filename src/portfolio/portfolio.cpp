@@ -5,7 +5,7 @@
 Portfolio::Portfolio(double cash) : cash_(cash), realized_pnl_(0)  {}
 
 OrderEvent Portfolio::handle_signal(SignalEvent signal) {
-  std::size_t order_amnt = 100;
+  std::size_t order_amnt = 1;
   int cur_pos = positions_[signal.ticker].quantity;
 
 
@@ -30,23 +30,42 @@ OrderEvent Portfolio::handle_signal(SignalEvent signal) {
   }
 }
 
-void Portfolio::record(const Decision& decision) {
-  if (decision.quantity == 0) {
+void Portfolio::on_fill(FillEvent fill) {
+  std::string ticker = fill.ticker;
+  std::size_t quantity = fill.quantity;
+  double fill_price = fill.fill_price;
+  OrderSide order_side = fill.order_side;
+
+  this->record(ticker, quantity, fill_price, order_side);
+  history_.push_back(fill);
+}
+
+void Portfolio::record(std::string ticker, std::size_t quantity, 
+                       double fill_price, OrderSide order_side) {
+  if (quantity == 0) {
     //dont do anything
     return;
   }
-  std::cout << "ORDER FILLED: " << 
-    decision.quantity << "@" << decision.price << std::endl;
 
-  auto& pos = positions_[decision.ticker];
+  std::string sign;
+  if (order_side == BUY) {
+    sign = "";
+  } else {
+    sign = "-";
+  }
 
-  if (decision.quantity < 0) {
+  std::cout << "ORDER FILLED: " << sign <<
+    quantity << "@" << fill_price << std::endl;
+
+  auto& pos = positions_[ticker];
+
+  if (order_side == SELL) {
     //SELLING
-    int sell_qty = -decision.quantity;
+    int sell_qty = -quantity;
     if (pos.quantity <= 0) {
       //shorting more / opening short position
       pos.quantity -= sell_qty;
-      pos.cost_basis -= sell_qty * decision.price;
+      pos.cost_basis -= sell_qty * fill_price;
     } else {
       //process current long position. open new short position if necessary.
       double avg_pos_price = pos.cost_basis / pos.quantity; //will be positive
@@ -56,23 +75,23 @@ void Portfolio::record(const Decision& decision) {
 
       pos.quantity -= selling_amount;
       pos.cost_basis -= selling_amount * avg_pos_price;
-      realized_pnl_ += (decision.price - avg_pos_price)*selling_amount;
+      realized_pnl_ += (fill_price - avg_pos_price)*selling_amount;
 
       //if sold more than owned, short position opened.
       if (shorting_amount > 0) {
         //open new short position
         pos.quantity -= shorting_amount;
-        pos.cost_basis -= shorting_amount * decision.price;
+        pos.cost_basis -= shorting_amount * fill_price;
       }
     }
-    cash_ += sell_qty * decision.price;
+    cash_ += -sell_qty * fill_price;
   } else {
     //BUYING
-    int buy_qty = decision.quantity;
+    int buy_qty = quantity;
     if (pos.quantity >= 0) {
       //opening/extending long position
       pos.quantity += buy_qty;
-      pos.cost_basis += buy_qty * decision.price;
+      pos.cost_basis += buy_qty * fill_price;
     } else {
       //SHORT POSITION HELD
       //process current short position. open long position if necessary
@@ -83,25 +102,23 @@ void Portfolio::record(const Decision& decision) {
 
       pos.quantity += closing_short_amount;
       pos.cost_basis += closing_short_amount * avg_pos_price;
-      realized_pnl_ += (avg_pos_price - decision.price)*closing_short_amount;
+      realized_pnl_ += (avg_pos_price - fill_price)*closing_short_amount;
 
       //if bought more than shorted, long position opened;
       if (long_amount > 0) {
         pos.quantity += long_amount;
-        pos.cost_basis += long_amount * decision.price;
+        pos.cost_basis += long_amount * fill_price;
       }
     }
-    cash_ -= buy_qty * decision.price;
+    cash_ -= buy_qty * fill_price;
   }
 
   if (pos.quantity == 0) {
-    positions_.erase(decision.ticker);
+    positions_.erase(ticker);
   }
 
   std::cout << "[cash/realized/position: " << cash_ << ", " << realized_pnl_ 
     << ", " << pos.quantity << "(" << pos.cost_basis << ")" << "]" << std::endl;
-
-  history_.push_back(decision);
 }
 
 double Portfolio::unrealized_pnl(const std::unordered_map<std::string, double> prices) const {

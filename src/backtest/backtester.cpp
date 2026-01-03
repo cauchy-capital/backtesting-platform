@@ -68,6 +68,11 @@ void Backtester::run_backtest() {
         if (oe) {
           curr_execution_handler_->handleOrder(*oe);
         }
+      } else if (e->type == FILL) {
+        auto* fe = dynamic_cast<FillEvent*>(e.get());
+        if (fe) {
+          portfolio_.on_fill(*fe);
+        }
       }
     }
   }
