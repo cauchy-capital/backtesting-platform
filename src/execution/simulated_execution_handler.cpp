@@ -1,5 +1,7 @@
 #include "simulated_execution_handler.h"
 
+#include <cassert>
+
 SimulatedExecutionHandler::SimulatedExecutionHandler()  {}
 
 void SimulatedExecutionHandler::handleOrder(OrderEvent oe) {
@@ -40,6 +42,28 @@ void SimulatedExecutionHandler::handleOrder(OrderEvent oe) {
 }
 
 FillEvent SimulatedExecutionHandler::onMarket(MarketEvent market) {
-  return FillEvent{};
+  std::string ticker = market.bar.ticker;
+  std::chrono::sys_time<std::chrono::milliseconds> new_bar_ts = market.bar.start_ts;
+
+  // find pending order
+  FillEvent empty{ticker, 0, 0, BUY};
+  auto it = pending_orders_.find(ticker);
+  if (it == pending_orders_.end()) {
+    return empty;
+  }
+
+  PendingOrder& pending_order = pending_orders_[ticker];
+  assert (pending_order.quantity > 0);
+  
+  if (!(new_bar_ts > pending_order.last_order_ts)) {
+    return empty;
+  }
+
+  double price = market.bar.open;
+  // fill full order
+  FillEvent filled{ticker, pending_order.quantity, price, pending_order.order_side};
+  pending_orders_.erase(ticker); 
+
+  return filled;
 }
 
