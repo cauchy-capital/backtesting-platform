@@ -19,6 +19,7 @@ add_library(cauchy_core STATIC
   src/core/market_event.cpp
   src/core/signal_event.cpp
   src/core/order_event.cpp
+  src/core/fill_event.cpp
 
   src/io/csv_data_feed.cpp
 
