@@ -39,8 +39,7 @@ SignalEvent SmaCrossStrategy::onBar(const MarketEvent& e) {
 
   // If you want to strictly trade only the configured ticker:
   if (!ticker_.empty() && bar.ticker != ticker_) {
-    //return Decision{bar.ticker, 0, bar.close};
-    return SignalEvent{};
+    return SignalEvent{bar.ticker, NOACT, bar};
   }
 
   // Use close as the signal/decision price (you can swap to bar.open, bar.low, etc.).
@@ -54,8 +53,7 @@ SignalEvent SmaCrossStrategy::onBar(const MarketEvent& e) {
 
   // Need enough history to compute long SMA
   if (closes_.size() < long_window_) {
-    //return Decision{bar.ticker, 0, price};
-    return SignalEvent{};
+    return SignalEvent{bar.ticker, NOACT, bar};
   }
 
   const double short_sma = sma_last_n_(short_window_);
@@ -66,8 +64,7 @@ SignalEvent SmaCrossStrategy::onBar(const MarketEvent& e) {
     has_prev_sma_ = true;
     prev_short_sma_ = short_sma;
     prev_long_sma_  = long_sma;
-    //return Decision{bar.ticker, 0, price};
-    return SignalEvent{};
+    return SignalEvent{bar.ticker, NOACT, bar};
   }
 
   const bool crossed_up =
@@ -82,18 +79,15 @@ SignalEvent SmaCrossStrategy::onBar(const MarketEvent& e) {
 
   if (!has_position_ && crossed_up) {
     has_position_ = true;
-    //return Decision{bar.ticker, trade_qty_, price};   // BUY
-    return SignalEvent{};
+    return SignalEvent{bar.ticker, LONG, bar};
   }
 
   if (has_position_ && crossed_down) {
     has_position_ = false;
-    //return Decision{bar.ticker, -trade_qty_, price};  // SELL
-    return SignalEvent{};
+    return SignalEvent{bar.ticker, SHORT, bar};
 
   }
 
-  //return Decision{bar.ticker, 0, price};              // HOLD
-  return SignalEvent{};
+  return SignalEvent{bar.ticker, NOACT, bar};
 }
 
