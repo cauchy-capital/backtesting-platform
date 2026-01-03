@@ -1,11 +1,11 @@
 #pragma once
 
-#include <string>
+enum EventType { MARKET, SIGNAL, ORDER, FILL };
 
 class Event {
 public:
   virtual ~Event() = default;
-  explicit Event(std::string type);
-  std::string type;
+  explicit Event(EventType type);
+  EventType type;
 };
 

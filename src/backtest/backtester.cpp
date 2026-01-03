@@ -45,14 +45,14 @@ void Backtester::run_backtest() {
 
       // find the correct handler for event
       // TODO: Use enums
-      if (e->type == "MARKET") {
+      if (e->type == MARKET) {
         auto* me = dynamic_cast<MarketEvent*>(e.get());
         if (me) {
           SignalEvent se = curr_strat_->onBar(*me);
           auto cse = std::make_unique<SignalEvent>(std::move(se));
           event_queue.push(std::move(cse));
         }
-      } else if (e->type == "SIGNAL") {
+      } else if (e->type == SIGNAL) {
         auto* se = dynamic_cast<SignalEvent*>(e.get());
         if (se) {
           OrderEvent oe = portfolio_.handle_signal(*se);
