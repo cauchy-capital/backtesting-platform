@@ -44,7 +44,6 @@ void Backtester::run_backtest() {
       event_queue.pop();
 
       // find the correct handler for event
-      // TODO: Use enums
       if (e->type == MARKET) {
         auto* me = dynamic_cast<MarketEvent*>(e.get());
         if (me) {
