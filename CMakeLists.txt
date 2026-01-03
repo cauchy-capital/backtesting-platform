@@ -15,6 +15,8 @@ add_library(cauchy_core STATIC
 
   src/backtest/backtester.cpp
 
+  src/execution/simulated_execution_handler.cpp
+
   src/core/event.cpp
   src/core/market_event.cpp
   src/core/signal_event.cpp
@@ -27,6 +29,8 @@ add_library(cauchy_core STATIC
   src/strategy/sma_cross_strategy.cpp
 
   src/market/bar_builder.cpp
+
+  src/execution/simulated_execution_handler.cpp
 )
 
 target_include_directories(cauchy_core

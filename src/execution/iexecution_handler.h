@@ -4,6 +4,8 @@
 #include "../core/fill_event.h"
 #include "../core/market_event.h"
 
+// interface for execution handlers. may be simulated, or connected to real
+// brokers
 class IExecutionHandler {
 public:
   virtual ~IExecutionHandler() = default;
