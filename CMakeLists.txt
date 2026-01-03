@@ -12,14 +12,19 @@ include(FetchContent)
 # ----------------------------
 add_library(cauchy_core STATIC
   src/portfolio/portfolio.cpp
+
   src/backtest/backtester.cpp
-  src/backtest/event.cpp
-  src/backtest/market_event.cpp
-  src/backtest/signal_event.cpp
-  src/backtest/order_event.cpp
+
+  src/core/event.cpp
+  src/core/market_event.cpp
+  src/core/signal_event.cpp
+  src/core/order_event.cpp
+
   src/io/csv_data_feed.cpp
+
   src/strategy/buy_everything_strategy.cpp
   src/strategy/sma_cross_strategy.cpp
+
   src/market/bar_builder.cpp
 )
 

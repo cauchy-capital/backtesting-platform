@@ -1,9 +1,6 @@
 #include <stdexcept>
 
-
 #include "sma_cross_strategy.h"
-#include "../backtest/signal_event.h"
-
 
 SmaCrossStrategy::SmaCrossStrategy(std::string ticker,
                                    std::size_t short_window,

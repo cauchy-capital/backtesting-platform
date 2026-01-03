@@ -4,9 +4,9 @@
 
 #include "backtester.h"
 #include "../market/bar_builder.h"
-#include "market_event.h"
-#include "event.h"
-#include "signal_event.h"
+#include "../core/market_event.h"
+#include "../core/event.h"
+#include "../core/signal_event.h"
 
 
 Backtester::Backtester(double cash) : portfolio_(cash) {}
@@ -58,6 +58,11 @@ void Backtester::run_backtest() {
           OrderEvent oe = portfolio_.handle_signal(*se);
           auto coe = std::make_unique<OrderEvent>(std::move(oe));
           event_queue.push(std::move(coe));
+        }
+      } else if (e->type == ORDER) {
+        auto* oe = dynamic_cast<SignalEvent*>(e.get());
+        if (oe) {
+
         }
       }
     }
