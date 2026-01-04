@@ -34,6 +34,7 @@ void Backtester::run_backtest() {
   std::queue<std::unique_ptr<Event>> event_queue;
   while (market_events.size() > 0) {
     auto me = std::make_unique<MarketEvent>(std::move(market_events.front()));
+    last_bar_ = me->bar;
     market_events.erase(market_events.begin());
     event_queue.push(std::move(me));
 
