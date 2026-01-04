@@ -61,7 +61,7 @@ void Portfolio::record(std::string ticker, std::size_t quantity,
 
   if (order_side == SELL) {
     //SELLING
-    int sell_qty = -quantity;
+    int sell_qty = quantity;
     if (pos.quantity <= 0) {
       //shorting more / opening short position
       pos.quantity -= sell_qty;
@@ -84,7 +84,7 @@ void Portfolio::record(std::string ticker, std::size_t quantity,
         pos.cost_basis -= shorting_amount * fill_price;
       }
     }
-    cash_ += -sell_qty * fill_price;
+    cash_ += sell_qty * fill_price;
   } else {
     //BUYING
     int buy_qty = quantity;
