@@ -81,8 +81,7 @@ SignalEvent SmaCrossStrategy::onBar(const MarketEvent& e) {
 
   if (has_position_ && crossed_down) {
     has_position_ = false;
-    return SignalEvent{bar.ticker, SHORT, bar};
-
+    return SignalEvent{bar.ticker, EXIT, bar};
   }
 
   return SignalEvent{bar.ticker, NOACT, bar};
