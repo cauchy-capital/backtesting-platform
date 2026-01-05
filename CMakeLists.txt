@@ -11,38 +11,38 @@ include(FetchContent)
 # Core library (reused by exe + python module)
 # ----------------------------
 add_library(cauchy_core STATIC
-  src/portfolio/portfolio.cpp
+  cauchy/portfolio/portfolio.cpp
 
-  src/backtest/backtester.cpp
+  cauchy/backtest/backtester.cpp
 
-  src/execution/simulated_execution_handler.cpp
+  cauchy/execution/simulated_execution_handler.cpp
 
-  src/core/event.cpp
-  src/core/market_event.cpp
-  src/core/signal_event.cpp
-  src/core/order_event.cpp
-  src/core/fill_event.cpp
+  cauchy/core/events/event.cpp
+  cauchy/core/events/market_event.cpp
+  cauchy/core/events/signal_event.cpp
+  cauchy/core/events/order_event.cpp
+  cauchy/core/events/fill_event.cpp
 
-  src/io/csv_data_feed.cpp
+  cauchy/io/csv_data_feed.cpp
 
-  src/strategy/buy_everything_strategy.cpp
-  src/strategy/sma_cross_strategy.cpp
+  cauchy/strategy/buy_everything_strategy.cpp
+  cauchy/strategy/sma_cross_strategy.cpp
 
-  src/market/bar_builder.cpp
+  cauchy/market/bar_builder.cpp
 
-  src/execution/simulated_execution_handler.cpp
+  cauchy/execution/simulated_execution_handler.cpp
 )
 
 target_include_directories(cauchy_core
   PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # ----------------------------
 # Main executable
 # ----------------------------
 add_executable(CauchyBacktester
-  src/main.cpp
+  cauchy/main.cpp
 )
 
 target_link_libraries(CauchyBacktester PRIVATE cauchy_core)
