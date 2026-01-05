@@ -12,22 +12,6 @@
 Backtester::Backtester(double cash) : portfolio_(cash) {}
 
 void Backtester::run_backtest() {
-  /*
-     @brief Runs an event-driven backtest over the currently configured 
-     feed/strategy/execution handler.
-    
-     Loads quote data from the active feed, aggregates it into fixed-interval 
-     bars (currently 1s), converts each bar into a MarketEvent, and processes 
-     events through a FIFO queue:
-    
-       MARKET -> (ExecutionHandler::onMarket -> FILL) + (Strategy::onBar -> SIGNAL)
-       SIGNAL -> (Portfolio::handle_signal -> ORDER) [if actionable]
-       ORDER  -> (ExecutionHandler::handleOrder)
-       FILL   -> (Portfolio::on_fill)
-    
-     The most recent bar is stored in `last_bar_` and printed at the end of 
-     the run. If no feed is set, the function logs an error and returns early.
-   */
   if (!curr_feed_) {
     std::cerr << "Backtester ERROR: No feed set.\n";
     return;
