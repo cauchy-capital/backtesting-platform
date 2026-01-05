@@ -59,7 +59,7 @@ void Backtester::run_backtest() {
         }
       } else if (e->type == SIGNAL) {
         auto* se = dynamic_cast<SignalEvent*>(e.get());
-        if (se) {
+        if (se->direction != NOACT) {
           OrderEvent oe = portfolio_.handle_signal(*se);
           auto coe = std::make_unique<OrderEvent>(std::move(oe));
           event_queue.push(std::move(coe));

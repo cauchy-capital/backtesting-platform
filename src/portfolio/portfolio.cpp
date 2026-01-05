@@ -1,24 +1,21 @@
 #include "portfolio.h"
 
 #include <iostream>
+#include <cassert>
 
 Portfolio::Portfolio(double cash) : cash_(cash), realized_pnl_(0)  {}
 
 OrderEvent Portfolio::handle_signal(SignalEvent signal) {
   std::size_t order_amnt = 1;
-  int cur_pos = positions_[signal.ticker].quantity;
-
-
   std::string ticker = signal.ticker;
 
   switch (signal.direction) {
-    case NOACT: 
-      return OrderEvent{ticker, 0, BUY, signal.bar};
     case LONG:
       return OrderEvent{ticker, order_amnt, BUY, signal.bar};
     case SHORT:
       return OrderEvent{ticker, order_amnt, SELL, signal.bar};
     case EXIT: {
+      int cur_pos = positions_[signal.ticker].quantity;
       std::size_t pos_amount = static_cast<std::size_t>(std::abs(cur_pos));
       if (cur_pos < 0) 
         return OrderEvent{ticker, pos_amount, BUY, signal.bar};
@@ -26,7 +23,7 @@ OrderEvent Portfolio::handle_signal(SignalEvent signal) {
         return OrderEvent{ticker, pos_amount, SELL, signal.bar};
       }
     default:
-      return OrderEvent{ticker, 0, BUY, signal.bar};
+      assert (false && "handle_signal unreachable");
   }
 }
 
