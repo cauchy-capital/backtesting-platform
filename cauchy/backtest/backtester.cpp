@@ -18,7 +18,7 @@ void Backtester::run_backtest() {
   }
 
   // parse CSV into bars.
-  std::chrono::milliseconds interval{1000};
+  std::chrono::milliseconds interval{3600000};
   BarBuilder bar_builder{interval};
 
   std::vector<Quote> quotes = curr_feed_->loadData();
@@ -31,52 +31,20 @@ void Backtester::run_backtest() {
     market_events.push_back(m);
   }
 
+  std::cerr << "quotes=" << quotes.size() << "\n";
+  std::cerr << "bars=" << bars.size() << "\n";
+  std::cerr << "market_events=" << market_events.size() << "\n";
   //run backtest
-  std::queue<std::unique_ptr<Event>> event_queue;
+  Dispatcher dispatcher{*this};
   for (MarketEvent market_event : market_events) {
-    auto me = std::make_unique<MarketEvent>(std::move(market_event));
-    last_bar_ = me->bar;
-    event_queue.push(std::move(me));
+    event_queue_.push(market_event);
 
 
-    while (!event_queue.empty()) {
-      auto e = std::move(event_queue.front());
-      event_queue.pop();
+    while (!event_queue_.empty()) {
+      auto e = std::move(event_queue_.front());
+      event_queue_.pop();
 
-      // find the correct handler for event
-      if (e->type == MARKET) {
-        auto* me = dynamic_cast<MarketEvent*>(e.get());
-        if (me) {
-          // notify execution handler
-          std::optional<FillEvent> fe = curr_execution_handler_->onMarket(*me);
-          if (fe != std::nullopt) {
-            auto cfe = std::make_unique<FillEvent>(std::move(fe.value()));
-            event_queue.push(std::move(cfe));
-          }
-          
-          // generate signal
-          SignalEvent se = curr_strat_->onBar(*me);
-          auto cse = std::make_unique<SignalEvent>(std::move(se));
-          event_queue.push(std::move(cse));
-        }
-      } else if (e->type == SIGNAL) {
-        auto* se = dynamic_cast<SignalEvent*>(e.get());
-        if (se->direction != NOACT) {
-          OrderEvent oe = portfolio_.handle_signal(*se);
-          auto coe = std::make_unique<OrderEvent>(std::move(oe));
-          event_queue.push(std::move(coe));
-        }
-      } else if (e->type == ORDER) {
-        auto* oe = dynamic_cast<OrderEvent*>(e.get());
-        if (oe) {
-          curr_execution_handler_->handleOrder(*oe);
-        }
-      } else if (e->type == FILL) {
-        auto* fe = dynamic_cast<FillEvent*>(e.get());
-        if (fe) {
-          portfolio_.on_fill(*fe);
-        }
-      }
+      std::visit(dispatcher,e);
     }
   }
   std::cout << "last BAR: PRICE=" << last_bar_.close << std::endl;

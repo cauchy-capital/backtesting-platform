@@ -14,6 +14,7 @@ add_library(cauchy_core STATIC
   cauchy/portfolio/portfolio.cpp
 
   cauchy/backtest/backtester.cpp
+  cauchy/backtest/dispatcher.cpp
 
   cauchy/execution/simulated_execution_handler.cpp
 

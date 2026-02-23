@@ -1,11 +1,15 @@
 #pragma once
 
 #include <memory>
+#include <queue>
+#include <variant>
 
 #include <cauchy/portfolio/portfolio.h>
 #include <cauchy/io/idata_feed.h>
 #include <cauchy/strategy/istrategy.h>
 #include <cauchy/execution/iexecution_handler.h>
+#include <cauchy/backtest/dispatcher.h>
+#include <cauchy/core/events/event.h>
 
 /*
  * Backtester orchestrates an event-driven simulation of a trading strategy over
@@ -45,7 +49,10 @@ class Backtester {
     void set_execution_handler(std::unique_ptr<IExecutionHandler> exec_handler);
 
   private:
+    friend struct Dispatcher;
+
     Portfolio portfolio_;
+    std::queue<std::variant<MarketEvent, SignalEvent, OrderEvent, FillEvent>> event_queue_;
     std::unique_ptr<IDataFeed> curr_feed_;
     std::unique_ptr<IStrategy> curr_strat_;
     std::unique_ptr<IExecutionHandler> curr_execution_handler_;
