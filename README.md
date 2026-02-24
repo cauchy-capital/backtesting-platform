@@ -86,7 +86,7 @@ create it as follows:
 import cauchybacktest as cb
 execution_handler = cb.SimulatedExecutionHandler()
 ```
-
+---
 
 ### 4) Create a strategy
 
