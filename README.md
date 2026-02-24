@@ -73,7 +73,21 @@ Local Time,Ask,Bid,AskVolume,BidVolume
 
 ---
 
-### 3) Create a strategy
+### 3) Create an execution handler
+
+A default execution handler is available:
+
+- `cauchybacktest.SimulatedExecutionHandler`
+
+create it as follows:
+
+```python
+import cauchybacktest as cb
+execution_handler = cb.SimulatedExecutionHandler()
+```
+
+
+### 4) Create a strategy
 
 A default strategy is available:
 
@@ -107,9 +121,9 @@ class ExampleStrat(cb.IStrategy):
 
 ---
 
-### 4) Run a backtest
+### 5) Run a backtest
 
-Set the feed and strategy using `set_feed()` and `set_strat()`, then run:
+Set the feed, strategy and execution handler using `set_feed()`, `set_strat()` and `set_execution_handler()`, then run:
 
 ```python
 import cauchybacktest as cb
@@ -123,7 +137,10 @@ data_feed = cb.CsvDataFeed(
 b.set_feed(data_feed)
 
 strat = cb.SmaCrossStrategy(ticker="0005.HKHKD")  # or your custom strategy
+execution_handler = cb.SimulatedExecutionHandler()
+
 b.set_strat(strat)
+b.set_execution_handler(execution_handler)
 
 b.run_backtest()
 ```
@@ -191,6 +208,9 @@ data_feed = cb.CsvDataFeed(
     ticker="0005.HKHKD",
 )
 b.set_feed(data_feed)
+
+execution_handler = cb.SimulatedExecutionHandler()
+b.set_execution_handler(execution_handler)
 
 strat = ExampleSmaCross(ticker="0005.HKHKD")
 b.set_strat(strat)
