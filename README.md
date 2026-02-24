@@ -4,6 +4,7 @@ A C++ backtesting platform with Python bindings, created for **Cauchy Capital**.
 
 ---
 
+
 ## Build
 
 From the root of the project:

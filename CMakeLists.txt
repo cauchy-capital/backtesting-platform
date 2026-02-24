@@ -11,24 +11,39 @@ include(FetchContent)
 # Core library (reused by exe + python module)
 # ----------------------------
 add_library(cauchy_core STATIC
-  src/portfolio/portfolio.cpp
-  src/backtest/backtester.cpp
-  src/io/csv_data_feed.cpp
-  src/strategy/buy_everything_strategy.cpp
-  src/strategy/sma_cross_strategy.cpp
-  src/market/bar_builder.cpp
+  cauchy/portfolio/portfolio.cpp
+
+  cauchy/backtest/backtester.cpp
+  cauchy/backtest/dispatcher.cpp
+
+  cauchy/execution/simulated_execution_handler.cpp
+
+  cauchy/core/events/event.cpp
+  cauchy/core/events/market_event.cpp
+  cauchy/core/events/signal_event.cpp
+  cauchy/core/events/order_event.cpp
+  cauchy/core/events/fill_event.cpp
+
+  cauchy/io/csv_data_feed.cpp
+
+  cauchy/strategy/buy_everything_strategy.cpp
+  cauchy/strategy/sma_cross_strategy.cpp
+
+  cauchy/market/bar_builder.cpp
+
+  cauchy/execution/simulated_execution_handler.cpp
 )
 
 target_include_directories(cauchy_core
   PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # ----------------------------
 # Main executable
 # ----------------------------
 add_executable(CauchyBacktester
-  src/main.cpp
+  cauchy/main.cpp
 )
 
 target_link_libraries(CauchyBacktester PRIVATE cauchy_core)
@@ -43,17 +58,19 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(pybind11)
 
-# The Python module name will be "traderbacktest" (or change it to what you want)
 pybind11_add_module(cauchybacktest MODULE
-  src/python/bindings.cpp
+  cauchy/python/bindings.cpp
 )
 
-target_link_libraries(cauchybacktest PRIVATE cauchy_core)
-target_include_directories(cauchybacktest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(cauchybacktest
+  PRIVATE
+    cauchy_core
+)
 
-# Optional: nicer errors if symbols are missing at import-time
-# (mostly relevant on Linux/macOS)
-# set_target_properties(traderbacktest PROPERTIES LINK_OPTIONS "-Wl,-undefined,dynamic_lookup")
+target_include_directories(cauchybacktest
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 # ----------------------------
 # GoogleTest
