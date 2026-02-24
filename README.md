@@ -102,11 +102,12 @@ Here, the input is a `cauchybacktest.MarketEvent`.
 
 - A `MarketEvent` holds a `bar` property.
 - A `SignalEvent` needs to be constructed using a ticker (`string`), a direction (`cb.Direction`), and a `bar`.
-- A `cb.Direction` holds any of the four states:
-      - `cb.Direction.SHORT` : signalling to go short.
-      - `cb.Direction.LONG` : signalling to go Long.
-      - `cb.Direction.EXIT` : signalling to exit the current held position.
-      - `cb.Direction.NOACT` : signalling no action to be taken.
+
+A `cb.Direction` holds any of the four states:
+- `cb.Direction.SHORT` : signalling to go short.
+- `cb.Direction.LONG` : signalling to go Long.
+- `cb.Direction.EXIT` : signalling to exit the current held position.
+- `cb.Direction.NOACT` : signalling no action to be taken.
 
 
 #### Minimal custom strategy skeleton
