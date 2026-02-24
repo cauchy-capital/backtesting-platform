@@ -18,7 +18,8 @@
 // If Bar / Decision are in market/
 #include <cauchy/market/bar.h>
 #include <cauchy/core/events/market_event.h>
-#include <cauchy/core/events/signal_event.h>
+#include <cauchy/core/direction.h>
+
 
 namespace py = pybind11;
 
@@ -120,6 +121,13 @@ PYBIND11_MODULE(cauchybacktest, m) {
   // --------------------
   // POD structs
   // --------------------
+  py::enum_<Direction>(m, "Direction")
+      .value("LONG", Direction::LONG)
+      .value("SHORT", Direction::SHORT)
+      .value("EXIT", Direction::EXIT)
+      .value("NOACT", Direction::NOACT)
+      .export_values();
+
   py::class_<SignalEvent>(m, "SignalEvent")
     .def(py::init<std::string, Direction, Bar>(),
          py::arg("ticker"), py::arg("direction"), py::arg("bar"))
@@ -161,7 +169,6 @@ PYBIND11_MODULE(cauchybacktest, m) {
   // .def(py::init<>())
   .def("handleOrder", &IExecutionHandler::handleOrder)
   .def("onMarket", &IExecutionHandler::onMarket);
-
     // --------------------
   // Concrete implementations
   // --------------------
