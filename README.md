@@ -96,7 +96,18 @@ A default strategy is available:
 
 To implement your own strategy, implement the `cauchybacktest.IStrategy` interface and define:
 
-- `onBar(bar: cauchybacktest.Bar) -> cauchybacktest.Decision`
+- `onBar(bar: cauchybacktest.MarketEvent) -> cauchybacktest.SignalEvent`
+
+Here, the input is a `cauchybacktest.MarketEvent`. 
+
+- A `MarketEvent` holds a `bar` property.
+- A `SignalEvent` needs to be constructed using a ticker (`string`), a direction (`cb.Direction`), and a `bar`.
+- A `cb.Direction` holds any of the four states:
+      - `cb.Direction.SHORT` : signalling to go short.
+      - `cb.Direction.LONG` : signalling to go Long.
+      - `cb.Direction.EXIT` : signalling to exit the current held position.
+      - `cb.Direction.NOACT` : signalling no action to be taken.
+
 
 #### Minimal custom strategy skeleton
 
@@ -108,14 +119,16 @@ class ExampleStrat(cb.IStrategy):
         super().__init__()
         self.ticker = ticker
 
-    def onBar(self, bar: cb.Bar) -> cb.Decision:
+    def onBar(self, marketEvent: cb.MarketEvent) -> cb.SignalEvent:
+        bar = marketEvent.bar
+
         price = bar.close
         qty = 100
 
         # ... your logic here ...
 
         # Buy `bar.ticker` at `price` for quantity `qty`
-        return cb.Decision(bar.ticker, qty, price)
+        return cb.SignalEvent(bar.ticker, cb.Direction.LONG , bar)
 ```
 
 > **Note:** Returning `cb.Decision(bar.ticker, 0, price)` indicates **no trade** on this bar.
@@ -174,33 +187,36 @@ class ExampleSmaCross(cb.IStrategy):
         self.t, self.s, self.l, self.q = ticker, short, long, qty
         self.c = deque(maxlen=long)
         self.pos = False
-        self.ps = self.pl = None  # previous short/long SMA values
+        self.ps = self.pl = None
 
-    def onBar(self, bar: cb.Bar) -> cb.Decision:
-        price = bar.close
+    def onBar(self, marketEvent: cb.MarketEvent) -> cb.SignalEvent:
+        bar = marketEvent.bar
         if bar.ticker != self.t:
-            return cb.Decision(bar.ticker, 0, price)
+            return cb.SignalEvent(bar.ticker, cb.Direction.NOACT, bar)
 
-        self.c.append(price)
+        self.c.append(bar.close)
         if len(self.c) < self.l:
-            return cb.Decision(bar.ticker, 0, price)
+            return cb.SignalEvent(bar.ticker, cb.Direction.NOACT, bar)
 
         c = list(self.c)
         s = sum(c[-self.s:]) / self.s
         l = sum(c) / self.l
 
-        qty = 0
+        direction = cb.Direction.NOACT
+
         if self.ps is not None:
-            up = self.ps <= self.pl and s > l
-            dn = self.ps >= self.pl and s < l
-            if up and not self.pos:
-                qty, self.pos = +self.q, True
-            elif dn and self.pos:
-                qty, self.pos = -self.q, False
+            crossed_up = (self.ps <= self.pl) and (s > l)
+            crossed_dn = (self.ps >= self.pl) and (s < l)
+
+            if crossed_up and not self.pos:
+                direction = cb.Direction.LONG
+                self.pos = True
+            elif crossed_dn and self.pos:
+                direction = cb.Direction.EXIT
+                self.pos = False
 
         self.ps, self.pl = s, l
-        return cb.Decision(bar.ticker, qty, price)
-
+        return cb.SignalEvent(bar.ticker, direction, bar)
 
 b = cb.Backtester(starting_cash=100.0)
 
