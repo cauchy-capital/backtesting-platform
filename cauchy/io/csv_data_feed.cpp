@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <chrono>
 
@@ -75,23 +76,52 @@ std::vector<std::string> CsvDataFeed::splitTab(const std::string& line) {
   return fields;
 }
 
-std::chrono::sys_time<std::chrono::milliseconds> CsvDataFeed::parseTimeStamp(const std::string& s) {
+std::chrono::sys_time<std::chrono::milliseconds>
+CsvDataFeed::parseTimeStamp(const std::string& s) {
   // Example input:
   // 17.11.2025 01:30:00.786 GMT-0000
 
-  // take only: 17.11.2025 01:30:00.786
-  std::string datetime = s.substr(0,23);
-  std::cout << "parsing: " << datetime << std::endl;
-
-
-  std::istringstream stream(datetime);
-  std::chrono::sys_time<std::chrono::milliseconds> time;
-  std::chrono::from_stream(stream, "%d.%m.%Y %H:%M:%S", time);
-
-  if (stream.fail()) {
-    throw std::runtime_error("Failed to parse timestamp: " + s);
+  // Take only: "17.11.2025 01:30:00.786" (length 23)
+  if (s.size() < 19) {
+    throw std::runtime_error("Timestamp too short: " + s);
   }
-  std::cout << "parsed: " << time << std::endl;
 
-  return time;
+  // Parse the base datetime part (no millis)
+  // "17.11.2025 01:30:00" -> length 19
+  const std::string base = s.substr(0, 19);
+
+  std::tm tm{};
+  tm.tm_isdst = -1; // let conversion decide; for UTC this is ignored
+  std::istringstream iss(base);
+  iss >> std::get_time(&tm, "%d.%m.%Y %H:%M:%S");
+  if (iss.fail()) {
+    throw std::runtime_error("Failed to parse timestamp (base): " + s);
+  }
+
+  // Parse milliseconds if present: ".786"
+  int millis = 0;
+  if (s.size() >= 23 && s[19] == '.') {
+    const std::string ms_str = s.substr(20, 3);
+    if (ms_str.size() != 3 ||
+        ms_str[0] < '0' || ms_str[0] > '9' ||
+        ms_str[1] < '0' || ms_str[1] > '9' ||
+        ms_str[2] < '0' || ms_str[2] > '9') {
+      throw std::runtime_error("Failed to parse timestamp (milliseconds): " + s);
+    }
+    millis = (ms_str[0] - '0') * 100 + (ms_str[1] - '0') * 10 + (ms_str[2] - '0');
+  }
+
+  // Convert to time_t in UTC.
+  // On Linux/WSL, timegm() is available (GNU extension).
+  std::time_t tt = timegm(&tm);
+  if (tt == -1) {
+    throw std::runtime_error("Failed to convert timestamp to UTC time_t: " + s);
+  }
+
+  auto tp_sec = std::chrono::system_clock::from_time_t(tt);
+  auto tp_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(tp_sec)
+             + std::chrono::milliseconds(millis);
+
+  return std::chrono::sys_time<std::chrono::milliseconds>(tp_ms);
 }
+

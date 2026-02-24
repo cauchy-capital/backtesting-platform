@@ -51,24 +51,26 @@ target_link_libraries(CauchyBacktester PRIVATE cauchy_core)
 # ----------------------------
 # pybind11 (Python module)
 # ----------------------------
-#FetchContent_Declare(
-#  pybind11
-#  GIT_REPOSITORY https://github.com/pybind/pybind11.git
-#  GIT_TAG v2.13.6
-#)
-#FetchContent_MakeAvailable(pybind11)
+FetchContent_Declare(
+  pybind11
+  GIT_REPOSITORY https://github.com/pybind/pybind11.git
+  GIT_TAG v2.13.6
+)
+FetchContent_MakeAvailable(pybind11)
 
-# The Python module name will be "traderbacktest" (or change it to what you want)
-#pybind11_add_module(cauchybacktest MODULE
-#  src/python/bindings.cpp
-#)
+pybind11_add_module(cauchybacktest MODULE
+  cauchy/python/bindings.cpp
+)
 
-#target_link_libraries(cauchybacktest PRIVATE cauchy_core)
-#target_include_directories(cauchybacktest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(cauchybacktest
+  PRIVATE
+    cauchy_core
+)
 
-# Optional: nicer errors if symbols are missing at import-time
-# (mostly relevant on Linux/macOS)
-# set_target_properties(traderbacktest PROPERTIES LINK_OPTIONS "-Wl,-undefined,dynamic_lookup")
+target_include_directories(cauchybacktest
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 # ----------------------------
 # GoogleTest

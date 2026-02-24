@@ -6,17 +6,19 @@
 #include <pybind11/stl.h>
 #include <pybind11/chrono.h>
 
-#include "backtest/backtester.h"
-#include "io/csv_data_feed.h"
-#include "strategy/istrategy.h"
-#include "strategy/sma_cross_strategy.h"
+#include <cauchy/backtest/backtester.h>
+#include <cauchy/io/csv_data_feed.h>
+#include <cauchy/strategy/istrategy.h>
+#include <cauchy/strategy/sma_cross_strategy.h>
+#include <cauchy/execution/simulated_execution_handler.h>
 
 // If Quote is in ../market/quote.h (as your IDataFeed includes it), include it too:
-#include "market/quote.h"
+#include <cauchy/market/quote.h>
 
 // If Bar / Decision are in market/
-#include "market/bar.h"
-#include "market/decision.h"
+#include <cauchy/market/bar.h>
+#include <cauchy/core/events/market_event.h>
+#include <cauchy/core/events/signal_event.h>
 
 namespace py = pybind11;
 
@@ -25,12 +27,12 @@ namespace py = pybind11;
 // --------------------
 struct PyIStrategy : public IStrategy {
   using IStrategy::IStrategy;
-  Decision onBar(const Bar& bar) override {
+  SignalEvent onBar(const MarketEvent& market_event) override {
     PYBIND11_OVERRIDE_PURE(
-      Decision,   // Return
-      IStrategy,  // Parent
-      onBar,      // Name
-      bar         // Args
+      SignalEvent,   // Return type
+      IStrategy,     // Parent class
+      onBar,         // Method name
+      market_event   // Arguments
     );
   }
 };
@@ -46,18 +48,37 @@ struct PyIDataFeed : public IDataFeed {
   }
 };
 
+struct PyIExecutionHandler : public IExecutionHandler {
+  using IExecutionHandler::IExecutionHandler;
+
+  void handleOrder(OrderEvent oe) override {
+    PYBIND11_OVERRIDE_PURE(
+      void,
+      IExecutionHandler,
+      handleOrder,
+      oe
+    );
+  }
+
+  std::optional<FillEvent> onMarket(MarketEvent market) override {
+    PYBIND11_OVERRIDE_PURE(
+      std::optional<FillEvent>,
+      IExecutionHandler,
+      onMarket,
+      market
+    );
+  }
+};
+
 // --------------------
-// Adapters: Backtester wants unique_ptr<Interface>
-// but Python objects are managed by shared_ptr.
-// These adapters are uniquely owned by Backtester,
-// and internally keep the Python object alive.
+// Adapters
 // --------------------
 class StrategyAdapter : public IStrategy {
 public:
   explicit StrategyAdapter(std::shared_ptr<IStrategy> s) : strat_(std::move(s)) {}
-  Decision onBar(const Bar& bar) override {
+  SignalEvent onBar(const MarketEvent& market_event) override {
     py::gil_scoped_acquire gil;
-    return strat_->onBar(bar);
+    return strat_->onBar(market_event);
   }
 private:
   std::shared_ptr<IStrategy> strat_;
@@ -74,24 +95,45 @@ private:
   std::shared_ptr<IDataFeed> feed_;
 };
 
+class ExecutionHandlerAdapter : public IExecutionHandler {
+public:
+  explicit ExecutionHandlerAdapter(std::shared_ptr<IExecutionHandler> exec_handler)
+      : exec_handler_(std::move(exec_handler)) {}
+
+  void handleOrder(OrderEvent oe) override {
+    py::gil_scoped_acquire gil;
+    exec_handler_->handleOrder(oe);
+  }
+
+  std::optional<FillEvent> onMarket(MarketEvent market) override {
+    py::gil_scoped_acquire gil;
+    return exec_handler_->onMarket(market);
+  }
+
+private:
+  std::shared_ptr<IExecutionHandler> exec_handler_;
+};
+
 PYBIND11_MODULE(cauchybacktest, m) {
   m.doc() = "Backtesting framework bindings";
 
   // --------------------
   // POD structs
   // --------------------
-  py::class_<Decision>(m, "Decision")
-    .def(py::init<>())
-    .def(py::init<std::string, int, double>(),
-         py::arg("ticker"), py::arg("quantity"), py::arg("price"))
-    .def_readwrite("ticker", &Decision::ticker)
-    .def_readwrite("quantity", &Decision::quantity)
-    .def_readwrite("price", &Decision::price);
+  py::class_<SignalEvent>(m, "SignalEvent")
+    .def(py::init<std::string, Direction, Bar>(),
+         py::arg("ticker"), py::arg("direction"), py::arg("bar"))
+    .def_readwrite("ticker", &SignalEvent::ticker)
+    .def_readwrite("direction", &SignalEvent::direction)
+    .def_readwrite("bar", &SignalEvent::bar);
+
+  py::class_<MarketEvent>(m, "MarketEvent")
+    .def(py::init<Bar>())
+    .def_readwrite("bar", &MarketEvent::bar);
 
   py::class_<Bar>(m, "Bar")
     .def(py::init<>())
     .def_readwrite("ticker", &Bar::ticker)
-    // pybind11/chrono.h usually converts system_clock::time_point <-> datetime
     .def_readwrite("start_ts", &Bar::start_ts)
     .def_readwrite("end_ts", &Bar::end_ts)
     .def_readwrite("open", &Bar::open)
@@ -100,8 +142,6 @@ PYBIND11_MODULE(cauchybacktest, m) {
     .def_readwrite("close", &Bar::close)
     .def_readwrite("data_gap", &Bar::data_gap);
 
-  // Quote: bind minimally so std::vector<Quote> can cross the boundary.
-  // IMPORTANT: customize fields/constructors to match YOUR Quote definition.
   py::class_<Quote>(m, "Quote")
     .def(py::init<>());
 
@@ -116,7 +156,13 @@ PYBIND11_MODULE(cauchybacktest, m) {
     .def(py::init<>())
     .def("loadData", &IDataFeed::loadData);
 
-  // --------------------
+  py::class_<IExecutionHandler, PyIExecutionHandler, std::shared_ptr<IExecutionHandler>>(m, "IExecutionHandler")
+  // If it's an interface / pure virtual, don't expose a default constructor:
+  // .def(py::init<>())
+  .def("handleOrder", &IExecutionHandler::handleOrder)
+  .def("onMarket", &IExecutionHandler::onMarket);
+
+    // --------------------
   // Concrete implementations
   // --------------------
   py::class_<CsvDataFeed, IDataFeed, std::shared_ptr<CsvDataFeed>>(m, "CsvDataFeed")
@@ -129,6 +175,9 @@ PYBIND11_MODULE(cauchybacktest, m) {
          py::arg("short_window") = 10,
          py::arg("long_window") = 30,
          py::arg("trade_qty") = 10);
+
+  py::class_<SimulatedExecutionHandler, IExecutionHandler, std::shared_ptr<SimulatedExecutionHandler>>(m, "SimulatedExecutionHandler")
+    .def(py::init<>());
 
   // --------------------
   // Backtester
@@ -148,6 +197,12 @@ PYBIND11_MODULE(cauchybacktest, m) {
          [](Backtester& b, std::shared_ptr<IStrategy> strat) {
            b.set_strat(std::make_unique<StrategyAdapter>(std::move(strat)));
          },
-         py::arg("strategy"));
+         py::arg("strategy"))
+    .def("set_execution_handler",
+         [](Backtester& b, std::shared_ptr<IExecutionHandler> exec_handler) {
+           b.set_execution_handler(std::make_unique<ExecutionHandlerAdapter>(std::move(exec_handler)));
+         },
+         py::arg("execution_handler"));
 }
+
 
